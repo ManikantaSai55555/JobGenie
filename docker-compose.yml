@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  api:
+    image: python:3.13-slim
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8000:8000"
+    command: bash -lc "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    command: sh -lc "npm install && npm run dev -- -p 3000"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
